@@ -1,0 +1,1308 @@
+/* -------------------------------------------------------------
+ * GTA IV Pause Screen Overlay Stylesheet
+ * ------------------------------------------------------------- */
+
+/* Custom Font Definition */
+@font-face {
+  font-family: 'Pricedown';
+  src: url('pricedown.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --gta-bg-dark: #090b0d;
+  --gta-bg-panel: rgba(10, 12, 16, 0.85);
+  --gta-bg-panel-header: rgba(0, 0, 0, 0.85);
+  --gta-border-color: #212830;
+  --gta-text-white: #ffffff;
+  --gta-text-gray: #7d8b99;
+  --gta-text-dim: #4c5661;
+  --gta-accent-blue: #8fd2eb;
+  --gta-accent-blue-rgb: 143, 210, 235;
+  --gta-accent-yellow: #f8c21a;
+  --gta-accent-red: #d12e2e;
+  --gta-accent-green: #3cd070;
+  
+  --font-ui: 'Barlow Condensed', sans-serif;
+  --font-mono: 'Share Tech Mono', monospace;
+  --font-logo: 'Pricedown', 'Impact', sans-serif;
+}
+
+/* Reset and Core Layout */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-ui);
+  background-color: var(--gta-bg-dark);
+  color: var(--gta-text-white);
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  position: relative;
+  user-select: none;
+}
+
+/* -------------------------------------------------------------
+ * Background Map & Canvas Elements
+ * ------------------------------------------------------------- */
+.map-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background-color: #06080a;
+}
+
+#map-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Timer cover image styles */
+.timer-cover-img-wrapper {
+  width: 100%;
+  /* Removed fixed height to allow full size proportional image */
+  border-bottom: 2px solid var(--gta-accent-blue);
+  background-color: #000;
+  display: block;
+}
+
+.timer-cover-img {
+  width: 100%;
+  height: auto; /* Display full proportional size */
+  display: block;
+  opacity: 1; /* Bright and clear */
+}
+
+/* Nico Small floating overlay character with GTA 4 slow pan/zoom effect */
+.nico-small-wrapper {
+  position: absolute;
+  bottom: 0;
+  right: 6%;
+  width: 380px;
+  height: 580px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.nico-small-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.7));
+  animation: nicoSlowMotion 18s infinite alternate ease-in-out;
+}
+
+@keyframes nicoSlowMotion {
+  0% {
+    transform: scale(0.96) translate(0, 0) rotate(-0.5deg);
+  }
+  100% {
+    transform: scale(1.05) translate(8px, -12px) rotate(1deg);
+  }
+}
+
+.map-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(9, 11, 13, 0.2) 0%, rgba(9, 11, 13, 0.8) 100%);
+  pointer-events: none;
+}
+
+.vignette {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  box-shadow: inset 0 0 150px rgba(0, 0, 0, 0.95);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.scanlines {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* -------------------------------------------------------------
+ * Main HUD Layout
+ * ------------------------------------------------------------- */
+.gta-hud-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 5;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 40px 60px;
+  pointer-events: auto;
+  transition: padding-right 0.3s ease;
+}
+
+.gta-hud-container.sidebar-open {
+  padding-right: 420px; /* Make space for control panel */
+}
+
+/* Top Header */
+.gta-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  height: 90px;
+  pointer-events: auto;
+}
+
+/* Navigation Menu */
+.gta-nav {
+  margin-top: 15px;
+}
+
+.nav-list {
+  display: flex;
+  list-style: none;
+  gap: 32px;
+}
+
+.nav-item {
+  font-family: var(--font-ui);
+  font-size: 26px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--gta-text-gray);
+  cursor: pointer;
+  letter-spacing: 2px;
+  padding: 2px 14px;
+  border: 2px solid transparent;
+  transition: color 0.1s ease, border-color 0.1s ease;
+}
+
+.nav-item:hover {
+  color: var(--gta-accent-blue);
+}
+
+.nav-item.active {
+  color: var(--gta-text-white);
+  border-color: var(--gta-accent-blue);
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+/* GTA IV Styled Logo */
+.logo-time-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+}
+
+.gta4-logo {
+  position: relative;
+  display: flex;
+  align-items: center;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.logo-img {
+  height: 120px;
+  max-width: 350px;
+  object-fit: contain;
+  filter: drop-shadow(2px 4px 8px rgba(0,0,0,0.8));
+}
+
+.header-info {
+  margin-top: 5px;
+}
+
+.gta-clock {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--gta-text-white);
+}
+
+.gta-subtext {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gta-text-gray);
+  letter-spacing: 1.5px;
+  margin-top: 2px;
+}
+
+/* -------------------------------------------------------------
+ * Main Panel Elements
+ * ------------------------------------------------------------- */
+.gta-main-content {
+  flex-grow: 1;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  position: relative;
+  min-height: 0; /* Important for flex child scrolling */
+}
+
+/* Tab Content Visibility */
+.tab-content {
+  display: none;
+  width: 100%;
+  height: 100%;
+  animation: fadeIn 0.25s ease-out forwards;
+}
+
+.tab-content.active {
+  display: flex;
+  align-items: center;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Common Panel Styling */
+.gta-panel {
+  background-color: var(--gta-bg-panel);
+  border: 1px solid var(--gta-border-color);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: flex;
+  flex-direction: column;
+}
+
+.panel-header {
+  background-color: var(--gta-bg-panel-header);
+  border-bottom: 1px solid var(--gta-border-color);
+  padding: 12px 24px;
+}
+
+.panel-title {
+  font-size: 22px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--gta-accent-blue);
+}
+
+.panel-body {
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.panel-body.no-padding {
+  padding: 0;
+}
+
+/* Scrollbars for GTA Panels */
+.panel-body::-webkit-scrollbar,
+.stats-list::-webkit-scrollbar,
+.control-panel-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.panel-body::-webkit-scrollbar-track,
+.stats-list::-webkit-scrollbar-track,
+.control-panel-body::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.panel-body::-webkit-scrollbar-thumb,
+.stats-list::-webkit-scrollbar-thumb,
+.control-panel-body::-webkit-scrollbar-thumb {
+  background: var(--gta-border-color);
+  border-radius: 4px;
+}
+
+.panel-body::-webkit-scrollbar-thumb:hover,
+.stats-list::-webkit-scrollbar-thumb:hover,
+.control-panel-body::-webkit-scrollbar-thumb:hover {
+  background: var(--gta-text-dim);
+}
+
+/* -------------------------------------------------------------
+ * 1. Pause Timer Style
+ * ------------------------------------------------------------- */
+.timer-panel {
+  width: 480px;
+  max-width: 100%;
+}
+
+.timer-wrapper {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  margin-bottom: 25px;
+  height: 96px;
+}
+
+.timer-bg-digits {
+  position: absolute;
+  font-family: var(--gta-timer-font, var(--font-mono));
+  font-size: 96px;
+  font-weight: 700;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.02); /* Very faint LED bg */
+  line-height: 1;
+  letter-spacing: -2px;
+  pointer-events: none;
+  z-index: 1;
+  display: block;
+}
+
+.timer-display {
+  position: relative;
+  font-family: var(--gta-timer-font, var(--font-mono));
+  font-size: 96px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--gta-timer-color, var(--gta-text-white));
+  line-height: 1;
+  letter-spacing: -2px;
+  text-shadow: var(--gta-timer-glow, 0 0 12px rgba(255,255,255,0.2));
+  z-index: 2;
+  transition: color 0.2s, font-family 0.2s, text-shadow 0.2s;
+}
+
+.timer-colon {
+  animation: blink 1s infinite steps(1);
+}
+
+@keyframes blink {
+  50% { opacity: 0.2; }
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 6px;
+  background-color: var(--gta-text-dim);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: var(--gta-accent-blue);
+  width: 0%;
+  transition: width 0.2s linear;
+  box-shadow: 0 0 10px rgba(var(--gta-accent-blue-rgb), 0.5);
+}
+
+.timer-description {
+  font-size: 16px;
+  line-height: 1.5;
+  color: var(--gta-text-gray);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* -------------------------------------------------------------
+ * 2. Stats Panel Style
+ * ------------------------------------------------------------- */
+.stats-container {
+  display: flex;
+  gap: 24px;
+  width: 900px;
+  max-width: 100%;
+  height: 480px;
+}
+
+.stats-categories {
+  width: 300px;
+  flex-shrink: 0;
+}
+
+.stats-details {
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.stats-cat-list {
+  list-style: none;
+}
+
+.stats-cat-item {
+  font-size: 20px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--gta-border-color);
+  color: var(--gta-text-gray);
+  cursor: pointer;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.stats-cat-item:hover {
+  background-color: rgba(255, 255, 255, 0.03);
+  color: var(--gta-text-white);
+}
+
+.stats-cat-item.active {
+  background-color: rgba(var(--gta-accent-blue-rgb), 0.1);
+  color: var(--gta-text-white);
+  border-left: 4px solid var(--gta-accent-blue);
+}
+
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  height: 400px;
+  overflow-y: auto;
+}
+
+.stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 24px;
+  border-bottom: 1px solid rgba(33, 40, 48, 0.5);
+  font-size: 18px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stats-row:nth-child(even) {
+  background-color: rgba(255, 255, 255, 0.01);
+}
+
+.stats-label {
+  color: var(--gta-text-gray);
+}
+
+.stats-value {
+  color: var(--gta-text-white);
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+
+.stats-value.highlight {
+  color: var(--gta-accent-blue);
+}
+
+/* -------------------------------------------------------------
+ * 3. Socials Panel Style (TW@ Internet Cafe Theme)
+ * ------------------------------------------------------------- */
+.socials-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+  width: 1000px;
+  max-width: 100%;
+}
+
+.tw-card {
+  background-color: #12161b;
+  border: 2px solid #2d3844;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+  transition: transform 0.2s, border-color 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.tw-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--gta-accent-blue);
+}
+
+.tw-header {
+  background: linear-gradient(90deg, #1b384c 0%, #152431 100%);
+  padding: 8px 16px;
+  border-bottom: 1px solid #2d3844;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tw-logo-mini {
+  background: var(--gta-accent-blue);
+  color: #12161b;
+  font-weight: 800;
+  font-size: 12px;
+  padding: 1px 4px;
+  border-radius: 2px;
+  letter-spacing: 0.5px;
+}
+
+.tw-title {
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #9ebcd4;
+  letter-spacing: 1px;
+}
+
+.tw-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
+  text-align: center;
+  background-color: rgba(14, 18, 23, 0.95);
+}
+
+.tw-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  filter: drop-shadow(0 0 5px rgba(255,255,255,0.1));
+}
+
+.tw-platform {
+  font-size: 22px;
+  font-weight: 800;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  letter-spacing: 1px;
+}
+
+.tw-handle {
+  font-family: var(--font-mono);
+  font-size: 15px;
+  color: var(--gta-accent-blue);
+  margin-bottom: 18px;
+}
+
+.tw-link-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: #212c38;
+  color: var(--gta-text-white);
+  border: 1px solid #36485c;
+  border-radius: 3px;
+  font-family: var(--font-ui);
+  font-size: 16px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-decoration: none;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.tw-link-btn:hover {
+  background-color: var(--gta-accent-blue);
+  border-color: var(--gta-accent-blue);
+  color: #0c0f12;
+}
+
+/* -------------------------------------------------------------
+ * 4. Radio Station Screen
+ * ------------------------------------------------------------- */
+.radio-screen {
+  display: flex;
+  gap: 24px;
+  width: 900px;
+  max-width: 100%;
+  height: 480px;
+}
+
+.radio-list-panel {
+  width: 320px;
+  flex-shrink: 0;
+}
+
+.radio-details-panel {
+  flex-grow: 1;
+}
+
+.radio-station-list {
+  list-style: none;
+  height: 400px;
+  overflow-y: auto;
+}
+
+.radio-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--gta-border-color);
+  font-size: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gta-text-gray);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.radio-item:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+  color: var(--gta-text-white);
+}
+
+.radio-item.active {
+  background-color: rgba(var(--gta-accent-blue-rgb), 0.1);
+  color: var(--gta-text-white);
+  border-left: 4px solid var(--gta-accent-blue);
+}
+
+.radio-logo-icon {
+  font-size: 24px;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background-color: rgba(255,255,255,0.05);
+}
+
+.radio-item.active .radio-logo-icon {
+  background-color: var(--gta-accent-blue);
+  color: #000;
+}
+
+.radio-details-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  padding: 40px;
+}
+
+.radio-disc-container {
+  position: relative;
+  width: 140px;
+  height: 140px;
+  margin-bottom: 24px;
+}
+
+.radio-logo-display {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 48px;
+  z-index: 10;
+}
+
+.radio-disc-spinner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 4px solid var(--gta-border-color);
+  border-top-color: var(--gta-accent-blue);
+  background-color: rgba(0, 0, 0, 0.3);
+  animation: spin 3s linear infinite;
+  animation-play-state: paused;
+}
+
+.radio-disc-spinner.playing {
+  animation-play-state: running;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.radio-details-body h2 {
+  font-size: 32px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--gta-text-white);
+  margin-bottom: 8px;
+  letter-spacing: 1.5px;
+}
+
+.song-ticker-box {
+  background-color: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--gta-border-color);
+  border-radius: 4px;
+  padding: 10px 24px;
+  margin-bottom: 16px;
+  max-width: 80%;
+  overflow: hidden;
+}
+
+#radio-song-name {
+  font-family: var(--font-mono);
+  font-size: 16px;
+  color: var(--gta-accent-yellow);
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+}
+
+.radio-frequencies {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--gta-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+/* -------------------------------------------------------------
+ * Bottom Bar & Keycaps
+ * ------------------------------------------------------------- */
+.gta-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 50px;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  padding-top: 15px;
+  pointer-events: auto;
+}
+
+.control-prompts {
+  display: flex;
+  gap: 28px;
+}
+
+.prompt-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--gta-text-gray);
+  letter-spacing: 0.5px;
+}
+
+.keycap {
+  background-color: #e2e8f0;
+  color: #0f172a;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 800;
+  box-shadow: 0 2px 0 #94a3b8, inset 0 1px 0 #ffffff;
+}
+
+.stream-info-pill {
+  background-color: rgba(var(--gta-accent-red-rgb, 209, 46, 46), 0.15);
+  border: 1px solid var(--gta-accent-red);
+  color: var(--gta-text-white);
+  padding: 4px 14px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+/* -------------------------------------------------------------
+ * Ambient Audio Prompt Overlay
+ * ------------------------------------------------------------- */
+.audio-prompt-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+}
+
+.audio-prompt-overlay.hidden {
+  display: none !important;
+}
+
+.audio-prompt-box {
+  background-color: #0f1318;
+  border: 1px solid var(--gta-border-color);
+  padding: 40px;
+  border-radius: 6px;
+  max-width: 450px;
+  text-align: center;
+  box-shadow: 0 15px 45px rgba(0,0,0,0.8);
+}
+
+.audio-prompt-icon {
+  font-size: 56px;
+  margin-bottom: 20px;
+  animation: pulse-ring 2s infinite;
+}
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.05); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+.audio-prompt-box h2 {
+  font-size: 26px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--gta-accent-blue);
+  margin-bottom: 12px;
+  letter-spacing: 1px;
+}
+
+.audio-prompt-box p {
+  font-size: 15px;
+  color: var(--gta-text-gray);
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+
+.gta-btn {
+  background-color: var(--gta-accent-blue);
+  color: #0a0c10;
+  border: none;
+  padding: 12px 28px;
+  font-family: var(--font-ui);
+  font-size: 18px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 3px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(143, 210, 235, 0.3);
+  transition: transform 0.1s, background-color 0.15s;
+}
+
+.gta-btn:hover {
+  background-color: var(--gta-text-white);
+  transform: translateY(-2px);
+}
+
+.gta-btn:active {
+  transform: translateY(0);
+}
+
+/* -------------------------------------------------------------
+ * Streamer Control Panel (Overlay Dashboard)
+ * ------------------------------------------------------------- */
+.control-panel-container {
+  position: fixed;
+  top: 0;
+  right: -420px; /* Hidden by default */
+  width: 400px;
+  height: 100vh;
+  background-color: #0b0e12;
+  border-left: 2px solid var(--gta-border-color);
+  box-shadow: -10px 0 40px rgba(0, 0, 0, 0.8);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  color: #e2e8f0;
+}
+
+.control-panel-container.open {
+  right: 0;
+}
+
+.control-panel-header {
+  padding: 20px;
+  background-color: #06080b;
+  border-bottom: 1px solid var(--gta-border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.control-panel-header h3 {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--gta-accent-blue);
+}
+
+.control-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.control-panel-body {
+  padding: 20px;
+  overflow-y: auto;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.cp-section {
+  border: 1px solid #1f2937;
+  border-radius: 4px;
+  padding: 16px;
+  background-color: rgba(17, 24, 39, 0.5);
+}
+
+.cp-section legend {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: var(--gta-text-gray);
+  padding: 0 8px;
+  letter-spacing: 1px;
+}
+
+.cp-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.cp-row:last-child {
+  margin-bottom: 0;
+}
+
+.cp-row.vertical {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.cp-row label {
+  color: #9ca3af;
+  font-weight: 600;
+}
+
+.cp-row input[type="text"],
+.cp-row input[type="number"],
+.cp-row select,
+.cp-row textarea {
+  background-color: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 3px;
+  color: #fff;
+  padding: 8px 12px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  width: 100%;
+}
+
+.cp-row input[type="text"]:focus,
+.cp-row input[type="number"]:focus,
+.cp-row select:focus,
+.cp-row textarea:focus {
+  outline: none;
+  border-color: var(--gta-accent-blue);
+}
+
+.cp-row.checkbox-row {
+  justify-content: flex-start;
+  gap: 10px;
+}
+
+.cp-row.checkbox-row input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.cp-row.checkbox-row label {
+  cursor: pointer;
+}
+
+.time-inputs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.time-inputs input {
+  width: 60px !important;
+  text-align: center;
+}
+
+.time-inputs span {
+  font-size: 12px;
+  color: var(--gta-text-gray);
+}
+
+.cp-button-group {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.cp-button-group.gap-sm {
+  gap: 6px;
+}
+
+.cp-btn {
+  flex-grow: 1;
+  padding: 8px 14px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-radius: 3px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.cp-btn:hover {
+  opacity: 0.9;
+}
+
+.cp-btn.font-icon {
+  font-size: 20px;
+  padding: 2px 8px;
+  background: transparent;
+  color: #9ca3af;
+}
+
+.cp-btn.font-icon:hover {
+  color: #fff;
+}
+
+.cp-btn.success { background-color: var(--gta-accent-green); color: #000; }
+.cp-btn.warning { background-color: var(--gta-accent-yellow); color: #000; }
+.cp-btn.danger { background-color: var(--gta-accent-red); color: #fff; }
+.cp-btn.secondary { background-color: #374151; color: #fff; }
+.cp-btn.accent-btn { background-color: var(--gta-accent-blue); color: #000; }
+
+.stats-editor-grid,
+.socials-editor-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 10px;
+  max-height: 250px;
+  overflow-y: auto;
+  padding-right: 5px;
+}
+
+.editor-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.range-row input[type="range"] {
+  flex-grow: 1;
+  margin: 0 10px;
+  cursor: pointer;
+}
+
+.cp-obs-info {
+  border-top: 1px solid var(--gta-border-color);
+  padding-top: 16px;
+  font-size: 12px;
+  color: var(--gta-text-gray);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cp-obs-info h4 {
+  color: var(--gta-text-white);
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.copy-url-box {
+  display: flex;
+  gap: 6px;
+}
+
+.copy-url-box input {
+  background-color: #090c0f;
+  border: 1px solid var(--gta-border-color);
+  color: var(--gta-accent-blue);
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 6px 10px;
+  border-radius: 3px;
+  flex-grow: 1;
+}
+
+.copy-url-box .cp-btn {
+  flex-grow: 0;
+  background-color: #374151;
+  color: #fff;
+  padding: 6px 12px;
+}
+
+.hint {
+  font-style: italic;
+  font-size: 11px;
+  color: var(--gta-text-dim);
+}
+
+/* Floating Control Panel Button */
+.floating-control-btn {
+  position: fixed;
+  bottom: 25px;
+  right: 25px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: var(--gta-bg-panel);
+  border: 1px solid var(--gta-border-color);
+  color: #fff;
+  font-size: 20px;
+  cursor: pointer;
+  z-index: 99;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  transition: transform 0.15s, background-color 0.15s;
+}
+
+.floating-control-btn:hover {
+  transform: scale(1.1);
+  background-color: #182029;
+  border-color: var(--gta-accent-blue);
+}
+
+/* Hide Control elements in stream/OBS mode */
+body.obs-mode #control-panel,
+body.obs-mode #btn-floating-control,
+body.obs-mode .gta-footer .prompt-item:last-child {
+  display: none !important;
+}
+
+body.obs-mode .gta-hud-container {
+  padding-right: 60px !important;
+}
+
+/* -------------------------------------------------------------
+ * Responsive Scaling & Viewport Adaptations
+ * ------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .gta-hud-container {
+    padding: 20px 30px;
+  }
+  .stats-container, .radio-screen, .socials-grid {
+    width: 100%;
+    height: auto;
+    flex-direction: column;
+  }
+  .stats-categories, .radio-list-panel {
+    width: 100%;
+    height: 150px;
+  }
+  .stats-list, .radio-station-list {
+    height: 120px;
+  }
+  .gta-main-content {
+    align-items: flex-start;
+    overflow-y: auto;
+    padding-bottom: 60px;
+  }
+  .gta-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0,0,0,0.9);
+    padding: 10px 20px;
+    z-index: 10;
+  }
+}
+
+/* =========================================================
+   GTA 6 VICE CITY NEON OVERHAUL
+   ========================================================= */
+:root {
+  --gta-bg-dark: #0f0514;
+  --gta-bg-panel: rgba(20, 5, 30, 0.75);
+  --gta-bg-panel-header: rgba(25, 5, 40, 0.85);
+  --gta-border-color: rgba(255, 0, 255, 0.3);
+}
+
+body {
+  background: radial-gradient(circle at center, #1a0826 0%, #05010a 100%) !important;
+}
+
+@keyframes neonTextCycle {
+  0% { color: #ff00ff; text-shadow: 0 0 12px #ff00ff, 0 0 25px rgba(255,0,255,0.5); border-color: #ff00ff; }
+  33% { color: #00ffff; text-shadow: 0 0 12px #00ffff, 0 0 25px rgba(0,255,255,0.5); border-color: #00ffff; }
+  66% { color: #ffaa00; text-shadow: 0 0 12px #ffaa00, 0 0 25px rgba(255,170,0,0.5); border-color: #ffaa00; }
+  100% { color: #ff00ff; text-shadow: 0 0 12px #ff00ff, 0 0 25px rgba(255,0,255,0.5); border-color: #ff00ff; }
+}
+
+@keyframes neonBorderCycle {
+  0% { border-color: #ff00ff; box-shadow: 0 0 20px rgba(255,0,255,0.4), inset 0 0 10px rgba(255,0,255,0.15); }
+  33% { border-color: #00ffff; box-shadow: 0 0 20px rgba(0,255,255,0.4), inset 0 0 10px rgba(0,255,255,0.15); }
+  66% { border-color: #ffaa00; box-shadow: 0 0 20px rgba(255,170,0,0.4), inset 0 0 10px rgba(255,170,0,0.15); }
+  100% { border-color: #ff00ff; box-shadow: 0 0 20px rgba(255,0,255,0.4), inset 0 0 10px rgba(255,0,255,0.15); }
+}
+
+@keyframes mapNeonCycle {
+  0% { filter: hue-rotate(120deg) saturate(1.8) drop-shadow(0 0 8px rgba(255,0,255,0.5)); }
+  33% { filter: hue-rotate(0deg) saturate(1.8) drop-shadow(0 0 8px rgba(0,255,255,0.5)); }
+  66% { filter: hue-rotate(180deg) saturate(1.8) drop-shadow(0 0 8px rgba(255,170,0,0.5)); }
+  100% { filter: hue-rotate(120deg) saturate(1.8) drop-shadow(0 0 8px rgba(255,0,255,0.5)); }
+}
+
+/* Apply neon cycles to major text elements */
+.nav-item.active, 
+.panel-title, 
+.timer-display, 
+.stats-val,
+.tw-title,
+.tw-platform {
+  animation: neonTextCycle 8s infinite linear !important;
+}
+
+/* Apply neon border cycles to panels */
+.gta-panel, 
+.tw-card, 
+.timer-cover-img-wrapper,
+.radio-item.active {
+  animation: neonBorderCycle 8s infinite linear !important;
+  background-color: rgba(20, 5, 30, 0.75) !important;
+}
+
+/* Map canvas color shifting */
+#map-canvas {
+  animation: mapNeonCycle 8s infinite linear !important;
+  opacity: 0.8;
+}
+
+/* Shift GTA 4 logo hue */
+.logo-img {
+  animation: mapNeonCycle 8s infinite linear !important;
+}
+
+/* Tint ambient scanlines & vignette */
+.vignette {
+  box-shadow: inset 0 0 150px rgba(15, 5, 25, 0.95) !important;
+}
+.scanlines {
+  background: repeating-linear-gradient(0deg, rgba(255, 0, 255, 0.05), rgba(255, 0, 255, 0.05) 1px, transparent 1px, transparent 2px) !important;
+}

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GTA IV Pause Screen Overlay & Timer</title>
+  <link rel="icon" type="image/x-icon" href="https://www.rockstargames.com/favicon.ico">
+  <!-- Google Fonts for the clean condensed UI typography -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="index.css?v=1.4">
+</head>
+<body>
+  <!-- Ambient Audio Indicator for Chrome Auto-play policy -->
+  <div id="audio-start-overlay" class="audio-prompt-overlay hidden">
+    <div class="audio-prompt-box">
+      <div class="audio-prompt-icon">🔊</div>
+      <h2>ENABLE LIVE GAME SOUNDS?</h2>
+      <p>Click anywhere to load the GTA IV Pause Screen ambience & click sound effects.</p>
+      <button id="btn-enable-audio" class="gta-btn">RESUME AMBIENCE</button>
+    </div>
+  </div>
+
+  <!-- Background Music Player -->
+  <audio id="bg-music" loop>
+    <source src="Alex Moretto - All Night Long  Speed Garage  NCS - Copyright Free Music.mp3" type="audio/mpeg">
+  </audio>
+
+  <!-- Background Map Canvas -->
+  <div class="map-container">
+    <canvas id="map-canvas"></canvas>
+    <div class="map-overlay"></div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+  </div>
+
+  <!-- Small Nico Floating Character with moving effect -->
+  <div class="nico-small-wrapper">
+    <img src="nico.png" class="nico-small-img" alt="Niko">
+  </div>
+
+  <!-- Main HUD Layer -->
+  <div id="gta-hud" class="gta-hud-container">
+    
+    <!-- Top Navigation Bar -->
+    <header class="gta-header">
+      <nav class="gta-nav">
+        <ul class="nav-list">
+          <li class="nav-item active" data-tab="pause">Pause</li>
+          <li class="nav-item" data-tab="stats">Stats</li>
+          <li class="nav-item" data-tab="socials">Socials</li>
+          <li class="nav-item" data-tab="radio">Radio</li>
+        </ul>
+      </nav>
+
+      <!-- GTA IV Logo & System Time -->
+      <div class="logo-time-container">
+        <div class="gta4-logo">
+          <img src="GTA_IV_logo.png" alt="GTA IV Logo" class="logo-img">
+        </div>
+        <div class="header-info">
+          <div id="gta-clock" class="gta-clock">THURSDAY 19:50</div>
+          <div class="gta-subtext">LIBERTY CITY, STATE OF LIBERTY</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Panel (Left-aligned, mimicking GTA IV layout) -->
+    <main class="gta-main-content">
+      
+      <!-- PAUSE / TIMER TAB -->
+      <section id="tab-content-pause" class="tab-content active">
+        <div class="gta-panel timer-panel">
+          <div class="timer-cover-img-wrapper">
+            <img src="cover.jpg?v=2" alt="Cover Art" class="timer-cover-img">
+          </div>
+          <div class="panel-header">
+            <span class="panel-title" id="overlay-status-title">GAME STARTS IN</span>
+          </div>
+          <div class="panel-body">
+            <div class="timer-wrapper">
+              <div class="timer-bg-digits" id="timer-bg-digits">88:88</div>
+              <div class="timer-display" id="timer-display">
+                <span id="timer-minutes">05</span><span class="timer-colon">:</span><span id="timer-seconds">00</span>
+              </div>
+            </div>
+            <div class="progress-bar-container">
+              <div id="timer-progress" class="progress-bar-fill" style="width: 100%;"></div>
+            </div>
+            <p class="timer-description" id="overlay-status-desc">
+              Niko is taking a quick coffee break at the TW@ Internet Cafe. The gameplay will resume shortly.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- STATS TAB -->
+      <section id="tab-content-stats" class="tab-content">
+        <div class="stats-container">
+          <div class="gta-panel stats-categories">
+            <div class="panel-header"><span class="panel-title">Categories</span></div>
+            <div class="panel-body no-padding">
+              <ul class="stats-cat-list">
+                <li class="stats-cat-item active" data-cat="stream">Stream</li>
+                <li class="stats-cat-item" data-cat="gameplay">Niko's Progress</li>
+                <li class="stats-cat-item" data-cat="fun">Fun Stats</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="gta-panel stats-details">
+            <div class="panel-header"><span class="panel-title" id="stats-detail-title">Stream Stats</span></div>
+            <div class="panel-body no-padding">
+              <div class="stats-list" id="stats-list-container">
+                <!-- Dynamically Populated -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SOCIALS TAB (TW@ Internet Cafe Theme) -->
+      <section id="tab-content-socials" class="tab-content">
+        <div class="socials-grid" id="socials-container">
+          <!-- Dynamically Populated -->
+        </div>
+      </section>
+
+      <!-- RADIO TAB (GTA IV Radio Wheel style) -->
+      <section id="tab-content-radio" class="tab-content">
+        <div class="radio-screen">
+          <div class="gta-panel radio-list-panel">
+            <div class="panel-header"><span class="panel-title">Radio Stations</span></div>
+            <div class="panel-body no-padding">
+              <ul class="radio-station-list" id="radio-station-list">
+                <!-- Dynamically Populated -->
+              </ul>
+            </div>
+          </div>
+          <div class="gta-panel radio-details-panel">
+            <div class="panel-header"><span class="panel-title">Now Playing</span></div>
+            <div class="panel-body radio-details-body">
+              <div class="radio-disc-container">
+                <div class="radio-logo-display" id="radio-logo-display">📻</div>
+                <div class="radio-disc-spinner" id="radio-disc-spinner"></div>
+              </div>
+              <h2 id="radio-station-name">VLADIVOSTOK FM</h2>
+              <div class="song-ticker-box">
+                <p id="radio-song-name">Seryoga - King Ring</p>
+              </div>
+              <div class="radio-frequencies" id="radio-freq-display">99.1 FM — STREAM BROADCAST</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Bar (Controls & Prompts) -->
+    <footer class="gta-footer">
+      <div class="control-prompts">
+        <div class="prompt-item"><span class="keycap">Esc</span> Back</div>
+        <div class="prompt-item"><span class="keycap">Enter</span> Select</div>
+        <div class="prompt-item"><span class="keycap">Space</span> Pause/Play Timer</div>
+        <div class="prompt-item"><span class="keycap">M</span> Mute music</div>
+        <div class="prompt-item"><span class="keycap">C</span> Toggle Controls</div>
+      </div>
+      <div class="stream-info-pill">
+        🔴 LIVE • GTA IV SPEEDRUN
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- CONTROL PANEL (Streamer Dashboard, visible only on main view or control mode) -->
+  <div id="control-panel" class="control-panel-container">
+    <div class="control-panel-header">
+      <h3>🔴 GTA IV OVERLAY CONTROL PANEL</h3>
+      <div class="control-panel-actions">
+        <button id="btn-toggle-obs" class="cp-btn accent-btn">Toggle HUD Mode</button>
+        <button id="btn-close-cp" class="cp-btn font-icon">×</button>
+      </div>
+    </div>
+    <div class="control-panel-body">
+      
+      <!-- Timer Controls -->
+      <fieldset class="cp-section">
+        <legend>Timer Setup</legend>
+        <div class="cp-row">
+          <label>Timer Duration:</label>
+          <div class="time-inputs">
+            <input type="number" id="input-minutes" value="5" min="0" max="99">
+            <span>min</span>
+            <input type="number" id="input-seconds" value="0" min="0" max="59">
+            <span>sec</span>
+          </div>
+        </div>
+        <div class="cp-button-group">
+          <button id="btn-timer-start" class="cp-btn success">START</button>
+          <button id="btn-timer-pause" class="cp-btn warning">PAUSE</button>
+          <button id="btn-timer-reset" class="cp-btn danger">RESET</button>
+        </div>
+        <div class="cp-button-group gap-sm">
+          <button id="btn-add-1m" class="cp-btn secondary">+1m</button>
+          <button id="btn-sub-1m" class="cp-btn secondary">-1m</button>
+          <button id="btn-add-30s" class="cp-btn secondary">+30s</button>
+        </div>
+      </fieldset>
+
+      <!-- Status Texts -->
+      <fieldset class="cp-section">
+        <legend>Status Display Text</legend>
+        <div class="cp-row vertical">
+          <label for="input-status-title">Title Text:</label>
+          <input type="text" id="input-status-title" value="GAME STARTS IN">
+        </div>
+        <div class="cp-row vertical">
+          <label for="input-status-desc">Description Message:</label>
+          <textarea id="input-status-desc" rows="3">Niko is taking a quick coffee break at the TW@ Internet Cafe. The gameplay will resume shortly.</textarea>
+        </div>
+      </fieldset>
+
+      <!-- Navigation & Cycle Options -->
+      <fieldset class="cp-section">
+        <legend>HUD Settings</legend>
+        <div class="cp-row checkbox-row">
+          <input type="checkbox" id="check-auto-cycle">
+          <label for="check-auto-cycle">Auto-Cycle Tabs (every 15s)</label>
+        </div>
+        <div class="cp-row">
+          <label>Active Tab:</label>
+          <select id="select-active-tab">
+            <option value="pause">PAUSE / TIMER</option>
+            <option value="stats">STATS</option>
+            <option value="socials">SOCIALS</option>
+            <option value="radio">RADIO</option>
+          </select>
+        </div>
+        <div class="cp-row">
+          <label>Map Animation:</label>
+          <select id="select-map-style">
+            <option value="pan-zoom">Animated Pan & Zoom</option>
+            <option value="pulse">Pulse Only</option>
+            <option value="static">Static Map</option>
+          </select>
+        </div>
+        <div class="cp-row checkbox-row">
+          <input type="checkbox" id="check-play-music">
+          <label for="check-play-music">Play Background Music</label>
+        </div>
+        <div class="cp-row range-row">
+          <label for="input-music-volume">Music Volume:</label>
+          <input type="range" id="input-music-volume" min="0" max="1" step="0.05" value="0.4">
+          <span id="volume-val">40%</span>
+        </div>
+      </fieldset>
+
+      <!-- Aesthetics & Customization -->
+      <fieldset class="cp-section">
+        <legend>Aesthetics & Color Customization</legend>
+        <div class="cp-row">
+          <label>Timer Digits Color:</label>
+          <div class="time-inputs">
+            <input type="color" id="input-timer-color" value="#ffffff" style="width:50px; padding:0; height:30px; cursor:pointer;">
+          </div>
+        </div>
+        <div class="cp-row">
+          <label>HUD Accent Color:</label>
+          <div class="time-inputs">
+            <input type="color" id="input-accent-color" value="#8fd2eb" style="width:50px; padding:0; height:30px; cursor:pointer;">
+          </div>
+        </div>
+        <div class="cp-row">
+          <label>Timer Typography:</label>
+          <select id="select-timer-font">
+            <option value="mono">Share Tech Mono (Digital)</option>
+            <option value="condensed">Barlow Condensed (Clean Bold)</option>
+            <option value="logo">Pricedown (GTA Theme)</option>
+          </select>
+        </div>
+        <div class="cp-row checkbox-row">
+          <input type="checkbox" id="check-timer-glow" checked>
+          <label for="check-timer-glow">Enable Neon Outer Glow</label>
+        </div>
+        <div class="cp-row checkbox-row">
+          <input type="checkbox" id="check-bg-digits" checked>
+          <label for="check-bg-digits">Faint LED Background (88:88)</label>
+        </div>
+      </fieldset>
+
+      <!-- Live Stream Stats Editor -->
+      <fieldset class="cp-section">
+        <legend>Edit Stats</legend>
+        <div class="cp-row">
+          <label>Category:</label>
+          <select id="stats-edit-cat">
+            <option value="stream">Stream</option>
+            <option value="gameplay">Niko's Progress</option>
+            <option value="fun">Fun Stats</option>
+          </select>
+        </div>
+        <div id="stats-inputs-list" class="stats-editor-grid">
+          <!-- Dynamically populated edit fields -->
+        </div>
+      </fieldset>
+
+      <!-- Social Media Handles -->
+      <fieldset class="cp-section">
+        <legend>Edit Social Links</legend>
+        <div id="socials-inputs-list" class="socials-editor-grid">
+          <!-- Dynamically populated edit fields -->
+        </div>
+      </fieldset>
+
+      <!-- Radio / Track Editor -->
+      <fieldset class="cp-section">
+        <legend>Radio Track Control</legend>
+        <div class="cp-row">
+          <label>Radio Station:</label>
+          <select id="cp-radio-station">
+            <!-- Populated dynamically -->
+          </select>
+        </div>
+        <div class="cp-row vertical">
+          <label for="cp-song-name">Track Playing:</label>
+          <input type="text" id="cp-song-name" value="Seryoga - King Ring">
+        </div>
+      </fieldset>
+
+      <div class="cp-obs-info">
+        <h4>OBS integration:</h4>
+        <p>To use this as a clean overlay in OBS, add it as a <strong>Browser Source</strong> with URL:</p>
+        <div class="copy-url-box">
+          <input type="text" id="obs-url-display" readonly value="http://localhost:8000/?stream=true">
+          <button id="btn-copy-url" class="cp-btn">Copy</button>
+        </div>
+        <p class="hint">Keep this window open in your regular browser to control the timer and stats in real-time!</p>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Floating Settings Button (shown when control panel is closed & not in OBS mode) -->
+  <button id="btn-floating-control" class="floating-control-btn" title="Open Stream Control Panel">⚙️</button>
+
+  <script src="app.js?v=1.2"></script>
+</body>
+</html>
